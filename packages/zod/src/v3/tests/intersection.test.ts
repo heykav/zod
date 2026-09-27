@@ -126,3 +126,8 @@ test("invalid array merge", async () => {
     expect(asyncResult.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_intersection_types);
   }
 });
+
+test("intersecting two NaN values does not throw (NaN !== NaN under ===)", () => {
+  const schema = z.intersection(z.nan(), z.nan());
+  expect(schema.parse(Number.NaN)).toBeNaN();
+});

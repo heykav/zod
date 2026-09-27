@@ -332,3 +332,15 @@ test("a strict object composes with a refined object", () => {
   expect(A.and(B).parse({ key1: true, key2: true })).toEqual({ key1: true, key2: true });
   expect(A.and(B).safeParse({ key1: true, key2: false }).success).toBe(false);
 });
+
+test("intersecting two NaN values does not throw (NaN !== NaN under ===)", () => {
+  const schema = z.intersection(z.nan(), z.nan());
+  expect(schema.parse(Number.NaN)).toBeNaN();
+});
+
+test("a NaN field nested in an object intersection does not throw", () => {
+  const schema = z.intersection(z.object({ x: z.nan() }), z.object({ x: z.nan(), y: z.string() }));
+  const result = schema.parse({ x: Number.NaN, y: "hi" });
+  expect(result.y).toBe("hi");
+  expect(result.x).toBeNaN();
+});

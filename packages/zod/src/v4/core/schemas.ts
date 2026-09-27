@@ -2833,6 +2833,13 @@ export function mergeValues(
   if (a === b) {
     return { valid: true, data: a };
   }
+  // NaN !== NaN under ===, but two NaN values (e.g. from intersecting
+  // z.nan() with itself, or z.number() branches that both produced NaN)
+  // are still a legitimate merge -- otherwise this throws an unrecoverable
+  // "Unmergable intersection" error even though both sides agree on the value.
+  if (typeof a === "number" && typeof b === "number" && Number.isNaN(a) && Number.isNaN(b)) {
+    return { valid: true, data: a };
+  }
   if (a instanceof Date && b instanceof Date && +a === +b) {
     return { valid: true, data: a };
   }

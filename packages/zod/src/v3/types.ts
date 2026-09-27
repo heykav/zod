@@ -3244,6 +3244,15 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
 
   if (a === b) {
     return { valid: true, data: a };
+  } else if (
+    aType === ZodParsedType.nan &&
+    bType === ZodParsedType.nan &&
+    Number.isNaN(a) &&
+    Number.isNaN(b)
+  ) {
+    // NaN !== NaN under ===, but two NaN values are still a legitimate
+    // merge (e.g. intersecting z.nan() with itself).
+    return { valid: true, data: a };
   } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
     const bKeys = util.objectKeys(b);
     const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
